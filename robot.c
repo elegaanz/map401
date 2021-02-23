@@ -211,11 +211,6 @@ bool double_egal(double a, double b) {
 Liste_Point tracer_contour(Image img, Image masque, UINT x, UINT y) {
     Liste_Point contour = creer_liste_Point_vide();
     double x0, y0;
-    /*if (!trouver_pixel_depart(img, &x, &y)) {
-        // on retourne une liste vide si jamais il n'y a aucun
-        // pixel de départ possible (l'image est surement vide)
-        return contour;
-    }*/
     Point position;
     x0 = x - 0.5;
     y0 = y - 0.5;
@@ -223,18 +218,13 @@ Liste_Point tracer_contour(Image img, Image masque, UINT x, UINT y) {
     position.y = y0;
     Orientation orientation = Est;
     bool boucle = true;
-	printf("----\n");
     while (boucle) {
 		if (orientation == Est) {
-			printf("set_pixel %d %d \n", (int)ceil(position.x), (int)ceil(position.y));
 			set_pixel_image(masque, (int)ceil(position.x), (int)ceil(position.y), BLANC);
         }
         memoriser_position(&contour, position);
         position = avancer(img, position, orientation);
         orientation = nouvelle_orientation(img, position, orientation);
-
-		printf("%f, %f %d\n", position.x, position.y, orientation);
-		ecrire_image(masque);
 
         if (double_egal(position.x, x0) && double_egal(position.y, y0) &&
             orientation == Est) {
@@ -250,7 +240,6 @@ Liste_Point tracer_contour(Image img, Image masque, UINT x, UINT y) {
 Image creation_image_masque(Image img) {
     Pixel pi;
     Pixel voisin;
-    printf("création masque \n");
     Image masque = creer_image(img.L, img.H);
     for (int i = 1; i<=img.L; i++){
         for (int j = 1; j<=img.H; j++) {
@@ -269,13 +258,12 @@ Image creation_image_masque(Image img) {
 Liste_Liste_Point tracer_tous_les_contours(Image img) {
 	Image masque = creation_image_masque(img);
 	Liste_Liste_Point contour_au_pluriel;
-    printf("tracer les contours \n");
 	contour_au_pluriel.first = NULL;
 	contour_au_pluriel.last = NULL;
 	contour_au_pluriel.taille = 0;
 	for (int y = 1; y <= img.H; y++) {
-		for (int x = 1; x < img.L; x++) {
-			if (get_pixel_image(masque, y, x) == NOIR) {
+		for (int x = 1; x <= img.L; x++) {
+			if (get_pixel_image(masque, x, y) == NOIR) {
                 Liste_Point contour_au_singulier;
 				contour_au_singulier = tracer_contour(img, masque, x, y);
 				Cellule_Liste_Liste_Point *cell_cont = malloc(sizeof(Cellule_Liste_Liste_Point));
@@ -290,7 +278,6 @@ Liste_Liste_Point tracer_tous_les_contours(Image img) {
 					contour_au_pluriel.last = cell_cont;
 				}
 				contour_au_pluriel.taille++;
-                printf("wesh c fini \n\n\n\n\n\n\n\n\n\n");
 			}
 		}
 	}
