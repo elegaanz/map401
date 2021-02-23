@@ -1,5 +1,4 @@
 *.o
-*.eps
 *.ps
 robot
 test_image
