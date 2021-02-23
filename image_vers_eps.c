@@ -12,40 +12,44 @@ int main(int argc, char **argv) {
 		return 1;
 	}
     Image img = lire_fichier_image(argv[1]);
-    ecrire_image(img);
-	Liste_Point cont = tracer_contour(img);
+    
+	Liste_Liste_Point cont = tracer_tous_les_contours(img);
 	FILE *sortie = fopen(argv[2], "w");
-
+    Cellule_Liste_Liste_Point *celliste = cont.first;
     char mode = argv[3][0];
 	
     fprintf(sortie, "%%!PS-Adobe-3.0 EPSF-3.0\n");
     int l = largeur_image(img);
     int h = hauteur_image(img);
     fprintf(sortie, "%%%%BoundingBox: 0 0 %d %d\n", l, h );
-    Cellule_Liste_Point *actcel = cont.first;
-    fprintf(sortie, "%.2f %.2f moveto\n", actcel->data.x, h - actcel->data.y);
-	actcel = actcel->suiv;
-    while (actcel != NULL) {
-        fprintf(sortie, "%.2f %.2f lineto\n", actcel->data.x, h - actcel->data.y);
-        actcel = actcel->suiv;
+    
+    while (celliste != NULL) {
+        Cellule_Liste_Point *actcel = celliste->data.first;
+        fprintf(sortie, "%.2f %.2f moveto\n", actcel->data.x, h - actcel->data.y);
+	    actcel = actcel->suiv;
+        while (actcel != NULL) {
+            fprintf(sortie, "%.2f %.2f lineto\n", actcel->data.x, h - actcel->data.y);
+            actcel = actcel->suiv;
+        }
+        if ( mode == '1' || mode == '2'){
+			fprintf(sortie, "0.1 setlinewidth\n");
+            fprintf(sortie, "stroke\n");
+        }
+        if (mode == '2') {
+            actcel = cont.first->data.first;
+            while (actcel != NULL) {
+                fprintf(sortie, "newpath\n");
+                fprintf(sortie, "%.2f %.2f 0.2 0 360  arc\n", actcel->data.x, h - actcel->data.y);
+                fprintf(sortie, "0 1 0 setrgbcolor\n");
+                fprintf(sortie, "fill\n");
+                fprintf(sortie, "closepath\n");
+                actcel = actcel->suiv;
+            }
+        }
+        celliste = celliste->suiv;
     }
-    fprintf(sortie, "0.1 setlinewidth\n");
-    if ( mode == '1' || mode == '2'){
-        fprintf(sortie, "stroke\n");
-    } else {
+    if (mode == '3') {
         fprintf(sortie, "fill\n");
-    }
-
-    if (mode == '2') {
-		actcel = cont.first;
-		while (actcel != NULL) {
-			fprintf(sortie, "newpath\n");
-			fprintf(sortie, "%.2f %.2f 0.2 0 360  arc\n", actcel->data.x, h - actcel->data.y);
-			fprintf(sortie, "0 1 0 setrgbcolor\n");
-			fprintf(sortie, "fill\n");
-			fprintf(sortie, "closepath\n");
-			actcel = actcel->suiv;
-		}
     }
     fprintf(sortie, "showpage\n");
 	fclose(sortie);
