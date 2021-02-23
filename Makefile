@@ -37,7 +37,7 @@ INCLUDEOPTS = -I$(INCDIR)
 COMPILOPTS = -g -Wall $(INCLUDEOPTS)
 
 # liste des executables
-EXECUTABLES = test_image robot
+EXECUTABLES = test_image image_vers_contour image_vers_eps
 
 
 #############################################################################
@@ -95,5 +95,11 @@ geom2d: geom2d.o
 clean:
 	rm -fR $(EXECUTABLES) *.o 
 
-robot: robot.o image.o geom2d.o
+#robot: robot.o image.o geom2d.o
+#	$(CC) $^ $(LDOPTS) -o $@
+
+image_vers_contour: image_vers_contour.o robot.o image.o geom2d.o
+	$(CC) $^ $(LDOPTS) -o $@
+
+image_vers_eps: image_vers_eps.o robot.o image.o geom2d.o
 	$(CC) $^ $(LDOPTS) -o $@

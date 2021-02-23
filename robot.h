@@ -38,4 +38,21 @@ Tableau_Point sequence_points_liste_vers_tableau(Liste_Point L);
 
 void ecrire_contour(Liste_Point L);
 
+Liste_Point tracer_contour(Image img, Image masque, UINT x, UINT y);
+
+typedef struct Cellule_Liste_Liste_Point_ {
+	Liste_Point data;
+	struct Cellule_Liste_Liste_Point_ *suiv;
+} Cellule_Liste_Liste_Point;
+
+typedef struct {
+	UINT taille;
+	Cellule_Liste_Liste_Point *first;
+	Cellule_Liste_Liste_Point *last;
+} Liste_Liste_Point;
+
+Image creation_image_masque(Image img);
+
+Liste_Liste_Point tracer_tous_les_contours(Image img);
+
 #endif

@@ -208,15 +208,14 @@ bool double_egal(double a, double b) {
     return (-EPSILON < diff) && (diff < EPSILON);
 }
 
-Liste_Point tracer_contour(Image img) {
+Liste_Point tracer_contour(Image img, Image masque, UINT x, UINT y) {
     Liste_Point contour = creer_liste_Point_vide();
-    UINT x, y;
     double x0, y0;
-    if (!trouver_pixel_depart(img, &x, &y)) {
+    /*if (!trouver_pixel_depart(img, &x, &y)) {
         // on retourne une liste vide si jamais il n'y a aucun
         // pixel de départ possible (l'image est surement vide)
         return contour;
-    }
+    }*/
     Point position;
     x0 = x - 0.5;
     y0 = y - 0.5;
@@ -224,10 +223,19 @@ Liste_Point tracer_contour(Image img) {
     position.y = y0;
     Orientation orientation = Est;
     bool boucle = true;
+	printf("----\n");
     while (boucle) {
+		if (orientation == Est) {
+			printf("set_pixel %d %d \n", (int)ceil(position.x), (int)ceil(position.y));
+			set_pixel_image(masque, (int)ceil(position.x), (int)ceil(position.y), BLANC);
+        }
         memoriser_position(&contour, position);
         position = avancer(img, position, orientation);
         orientation = nouvelle_orientation(img, position, orientation);
+
+		printf("%f, %f %d\n", position.x, position.y, orientation);
+		ecrire_image(masque);
+
         if (double_egal(position.x, x0) && double_egal(position.y, y0) &&
             orientation == Est) {
 
@@ -238,48 +246,54 @@ Liste_Point tracer_contour(Image img) {
     return contour;
 }
 
-int main(int argc, char **argv) {
-	if (argc < 4) {
-		printf("Usage: %s <pbm> <sortie> <mode>\n", argv[0]);
-		return 1;
-	}
-    Image img = lire_fichier_image(argv[1]);
-    ecrire_image(img);
-	Liste_Point cont = tracer_contour(img);
-	FILE *sortie = fopen(argv[2], "w");
 
-    char mode = argv[3][0];
-	
-    fprintf(sortie, "%%!PS-Adobe-3.0 EPSF-3.0\n");
-    int l = largeur_image(img);
-    int h = hauteur_image(img);
-    fprintf(sortie, "%%%%BoundingBox: 0 0 %d %d\n", l, h );
-    Cellule_Liste_Point *actcel = cont.first;
-    fprintf(sortie, "%.2f %.2f moveto\n", actcel->data.x, h - actcel->data.y);
-	actcel = actcel->suiv;
-    while (actcel != NULL) {
-        fprintf(sortie, "%.2f %.2f lineto\n", actcel->data.x, h - actcel->data.y);
-        actcel = actcel->suiv;
+Image creation_image_masque(Image img) {
+    Pixel pi;
+    Pixel voisin;
+    printf("création masque \n");
+    Image masque = creer_image(img.L, img.H);
+    for (int i = 1; i<=img.L; i++){
+        for (int j = 1; j<=img.H; j++) {
+            pi = get_pixel_image(img, i, j);
+            voisin = get_pixel_image(img, i, j-1);
+            if (pi == NOIR && voisin == BLANC) {
+                set_pixel_image(masque, i, j, NOIR);
+            }
+        }
     }
-    fprintf(sortie, "0.1 setlinewidth\n");
-    if ( mode == '1' || mode == '2'){
-        fprintf(sortie, "stroke\n");
-    } else {
-        fprintf(sortie, "fill\n");
-    }
+	return masque;
+}
 
-    if (mode == '2') {
-		actcel = cont.first;
-		while (actcel != NULL) {
-			fprintf(sortie, "newpath\n");
-			fprintf(sortie, "%.2f %.2f 0.2 0 360  arc\n", actcel->data.x, h - actcel->data.y);
-			fprintf(sortie, "0 1 0 setrgbcolor\n");
-			fprintf(sortie, "fill\n");
-			fprintf(sortie, "closepath\n");
-			actcel = actcel->suiv;
+
+
+Liste_Liste_Point tracer_tous_les_contours(Image img) {
+	Image masque = creation_image_masque(img);
+	Liste_Liste_Point contour_au_pluriel;
+    printf("tracer les contours \n");
+	contour_au_pluriel.first = NULL;
+	contour_au_pluriel.last = NULL;
+	contour_au_pluriel.taille = 0;
+	for (int y = 1; y <= img.H; y++) {
+		for (int x = 1; x < img.L; x++) {
+			if (get_pixel_image(masque, y, x) == NOIR) {
+                Liste_Point contour_au_singulier;
+				contour_au_singulier = tracer_contour(img, masque, x, y);
+				Cellule_Liste_Liste_Point *cell_cont = malloc(sizeof(Cellule_Liste_Liste_Point));
+				cell_cont->suiv = NULL;
+				cell_cont->data = contour_au_singulier;
+
+				if (contour_au_pluriel.taille == 0) {
+					contour_au_pluriel.first = cell_cont;
+					contour_au_pluriel.last = cell_cont;
+				} else {
+					contour_au_pluriel.last->suiv = cell_cont;
+					contour_au_pluriel.last = cell_cont;
+				}
+				contour_au_pluriel.taille++;
+                printf("wesh c fini \n\n\n\n\n\n\n\n\n\n");
+			}
 		}
-    }
-    fprintf(sortie, "showpage\n");
-	fclose(sortie);
-	return 0;
+	}
+	
+	return contour_au_pluriel;
 }
