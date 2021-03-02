@@ -11,6 +11,10 @@ typedef struct Point_ {
     double x, y;
 } Point;
 
+typedef struct Segment_ {
+	Point a, b;
+} Segment;
+
 /**
  * Crée le point de coordonnées (x, y).
  */
@@ -27,5 +31,10 @@ Point add_point(Point P1, Point P2);
 Vecteur vect_bipoint(Point A, Point B);
 
 void afficher_point(Point p);
+
+/**
+* 
+*/
+double distance_point_segment(Segment s, Point p);
 
 #endif
