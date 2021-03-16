@@ -36,6 +36,7 @@ Liste_Point concatener_liste_Point(Liste_Point L1, Liste_Point L2);
 
 Tableau_Point sequence_points_liste_vers_tableau(Liste_Point L);
 
+
 void ecrire_contour(Liste_Point L);
 
 Liste_Point tracer_contour(Image img, Image masque, UINT x, UINT y);
@@ -50,6 +51,27 @@ typedef struct {
 	Cellule_Liste_Liste_Point *first;
 	Cellule_Liste_Liste_Point *last;
 } Liste_Liste_Point;
+
+
+typedef struct Cellule_Liste_Segment_ {
+    Segment data;
+    struct Cellule_Liste_Segment_ *suiv;
+} Cellule_Liste_Segment;
+
+typedef struct Liste_Segment_ {
+    UINT taille;
+    Cellule_Liste_Segment *first;
+    Cellule_Liste_Segment *last;
+} Liste_Segment;
+
+Liste_Segment creer_liste_segment_vide();
+
+Liste_Segment ajouter_element_liste_segment(Liste_Segment L, Segment e);
+
+Liste_Segment supprimer_liste_segment(Liste_Segment L);
+
+Liste_Segment concatener_liste_Segment(Liste_Segment L1, Liste_Segment L2);
+
 
 Image creation_image_masque(Image img);
 

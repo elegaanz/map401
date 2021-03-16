@@ -37,7 +37,7 @@ INCLUDEOPTS = -I$(INCDIR)
 COMPILOPTS = -g -Wall $(INCLUDEOPTS)
 
 # liste des executables
-EXECUTABLES = test_image image_vers_contour image_vers_eps test_distance
+EXECUTABLES = simplification test_image image_vers_contour image_vers_eps test_distance
 
 
 #############################################################################
@@ -105,4 +105,7 @@ image_vers_eps: image_vers_eps.o robot.o image.o geom2d.o
 	$(CC) $^ $(LDOPTS) -o $@
 
 test_distance: test_distance.o geom2d.o
+	$(CC) $^ $(LDOPTS) -o $@
+
+simplification: simplification.o robot.o image.o geom2d.o
 	$(CC) $^ $(LDOPTS) -o $@

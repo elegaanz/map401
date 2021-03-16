@@ -48,6 +48,63 @@ Liste_Point supprimer_liste_Point(Liste_Point L) {
     return L;
 }
 
+
+
+
+Cellule_Liste_Segment *creer_element_liste_Segment(Segment v) {
+    Cellule_Liste_Segment *el;
+    el = (Cellule_Liste_Segment *)malloc(sizeof(Cellule_Liste_Segment));
+    if (el == NULL) {
+        fprintf(stderr, "creer_element_liste_Segment : allocation impossible \n");
+        exit(-1);
+    }
+    el->suiv = NULL;
+    el->data = v;
+    return el;
+}
+
+Liste_Segment creer_liste_segment_vide() {
+    Liste_Segment L = {0, NULL, NULL};
+    return L;
+}
+
+Liste_Segment ajouter_element_liste_segment(Liste_Segment L, Segment e) {
+    Cellule_Liste_Segment *el;
+    el = creer_element_liste_Segment(e);
+    if (L.taille == 0) {
+        L.first = L.last = el;
+    } else {
+        L.last->suiv = el;
+        L.last = el;
+    }
+    L.taille++;
+    return L;
+}
+
+Liste_Segment supprimer_liste_Segment(Liste_Segment L) {
+    Cellule_Liste_Segment *el = L.first;
+    while (el) {
+        Cellule_Liste_Segment *suiv = el->suiv;
+        free(el);
+        el = suiv;
+    }
+    L.first = L.last = NULL;
+    L.taille = 0;
+    return L;
+}
+
+Liste_Segment concatener_liste_Segment(Liste_Segment L1, Liste_Segment L2) {
+    if (L1.taille == 0)
+        return L2;
+    if (L2.taille == 0)
+        return L1;
+
+    L1.last->suiv = L2.first;
+    L1.last = L2.last;
+    L1.taille += L2.taille;
+    return L1;
+}
+
 Liste_Point concatener_liste_Point(Liste_Point L1, Liste_Point L2) {
     if (L1.taille == 0)
         return L2;
