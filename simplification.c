@@ -84,15 +84,17 @@ int main (int argc, char ** argv) {
 	Liste_Liste_Point cont = tracer_tous_les_contours(img);
     Liste_Segment seg;
 
-
+    int contseg1 = 0;
     Cellule_Liste_Liste_Point *celliste = cont.first;
     fprintf(sortie, "%%!PS-Adobe-3.0 EPSF-3.0\n");
     int l = largeur_image(img);
     int h = hauteur_image(img);
     fprintf(sortie, "%%%%BoundingBox: 0 0 %d %d\n", l, h );
-
+    int contseg = 0;
     while(celliste != NULL) {
+        contseg1 = contseg1 + celliste->data.taille - 1;
         seg = simplification(celliste->data, 0, celliste->data.taille - 1, seuil);
+        contseg = contseg + seg.taille;
         eps(h, seg, sortie);
         celliste = celliste->suiv;
     }
@@ -103,6 +105,8 @@ int main (int argc, char ** argv) {
     fprintf(sortie, "showpage\n");
 	fclose(sortie);
 
-
+	printf("Nb de contours : %d\n", cont.taille);
+    printf("Nb segments avant simplification : %d\n", contseg1);
+    printf("Nb segments après simplification : %d\n", contseg);
 	return 0;
 }
